@@ -1,0 +1,35 @@
+# Get all documents in index
+GET http://localhost:9200/movies/_search
+Accept: application/json
+
+###
+
+# Upload many documents in bulk
+PUT http://localhost:9200/_bulk?pretty
+Content-Type: application/json
+
+< data/movies.json
+
+###
+
+# Get mapping of document movies
+GET http://localhost:9200/movies/_mapping
+Accept: application/json
+
+###
+
+# Define moves document
+PUT http://localhost:9200/movies
+Content-Type: application/json
+
+{
+  "mappings": {
+    "properties": {
+      "year": {
+        "type": "date"
+      }
+    }
+  }
+}
+
+###

@@ -38,5 +38,9 @@ To test loaded data call:
 
 `curl -H "Content-Type: application/json" -XGET "localhost:9200/shakespeare/_search?pretty" -d '{"query": { "match_phrase": {"text_entry": "to be or not to be"}}}'`
 
+# MovieLens/GroupLens
+There is another dataset to try: https://grouplens.org/datasets/movielens/
+
 # Content
  1. [Concepts](https://github.com/antusus/elasticsearch-course/blob/main/notes/01_basic_concepts.md)
+ 1. [Documents and operations](https://github.com/antusus/elasticsearch-course/blob/main/notes/02_document_operations.md)
