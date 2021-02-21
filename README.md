@@ -39,4 +39,4 @@ To test loaded data call:
 `curl -H "Content-Type: application/json" -XGET "localhost:9200/shakespeare/_search?pretty" -d '{"query": { "match_phrase": {"text_entry": "to be or not to be"}}}'`
 
 #Content
- 1. [Concepts](https://github.com/antusus/elasticsearch-course/notes/01_basic_concepts.md)
+ 1. [Concepts](https://github.com/antusus/elasticsearch-course/blob/main/notes/01_basic_concepts.md)
