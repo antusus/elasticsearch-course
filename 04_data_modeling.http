@@ -1,0 +1,81 @@
+# Define idex to keep movies of the one series together
+PUT http://localhost:9200/series
+Content-Type: application/json
+
+{
+  "mappings": {
+    "properties": {
+      "film_to_franchise": {
+        "type": "join",
+        "relations": {
+          "franchise": "film"
+        }
+      }
+    }
+  }
+}
+
+###
+
+GET http://localhost:9200/series/_mapping
+
+###
+
+# Filling series with data from:  http://media.sundog-soft.com/es7/series.json
+PUT http://localhost:9200/_bulk?pretty
+Content-Type: application/json
+
+< data/series.json
+
+###
+
+# Look for films in franchise "Star Wars"
+GET http://localhost:9200/series/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "has_parent": {
+      "parent_type": "franchise",
+      "query": {
+        "match": {
+          "title": "Star Wars"
+        }
+      }
+    }
+  }
+}
+
+###
+
+# Find franchise corresponding to a film
+GET http://localhost:9200/series/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "has_child": {
+      "type": "film",
+      "query": {
+        "match": {
+          "title": "Strikes"
+        }
+      }
+    }
+  }
+}
+
+###
+
+POST http://localhost:9200/series/_doc/2?routing=1
+Content-Type: application/json
+
+{
+  "id": 2,
+  "film_to_franchise": {
+    "name": "franchise"
+  },
+  "title": "Star Trek"
+}
+
+###
