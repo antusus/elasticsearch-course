@@ -4,6 +4,88 @@ Accept: application/json
 
 ###
 
+# Delete document
+DELETE http://localhost:9200/movies/_doc/Wcf5yHcBwn-JvDx1IQch
+###
+
+#Parially update a document and add new genre
+POST http://localhost:9200/movies/_update/Wcf5yHcBwn-JvDx1IQch
+Content-Type: application/json
+
+{
+  "doc": {
+      "genre": [
+        "Documentary",
+        "Comedy",
+        "Netflix",
+        "TV Series"
+      ]
+  }
+}
+
+###
+
+#Parially update a document and add new genre with script
+POST http://localhost:9200/movies/_update/Wcf5yHcBwn-JvDx1IQch
+Content-Type: application/json
+
+{
+  "script": {
+    "source": "ctx._source.genre.add(params.genre)",
+    "params": {
+      "genre": "TV Series"
+    }
+  }
+}
+
+###
+
+#Update whole document
+PUT http://localhost:9200/movies/_doc/WMfVyHcBwn-JvDx1FgeA
+Content-Type: application/json
+
+{
+  "title": "Jack Whitehall: Travels with My Father Season 1",
+  "genre": [
+    "Documentary",
+    "Comedy",
+    "Netflix"
+  ],
+  "year": 2017
+}
+
+###
+
+# Search for "whitehall"
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+Accept: application/json
+
+{
+  "query": {
+    "match": {
+      "title": "whitehall"
+    }
+  }
+}
+
+###
+
+# Insert new document
+POST http://localhost:9200/movies/_doc
+Content-Type: application/json
+
+{
+  "title": "Jack Whitehall: Travels with My Father Season 1",
+  "genre": [
+    "Documentary",
+    "Comedy"
+  ],
+  "year": 2017
+}
+
+###
+
 # Upload many documents in bulk
 PUT http://localhost:9200/_bulk?pretty
 Content-Type: application/json
