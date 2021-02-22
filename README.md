@@ -44,3 +44,4 @@ There is another dataset to try: https://grouplens.org/datasets/movielens/
 # Content
  1. [Concepts](https://github.com/antusus/elasticsearch-course/blob/main/notes/01_basic_concepts.md)
  1. [Documents and operations](https://github.com/antusus/elasticsearch-course/blob/main/notes/02_document_operations.md)
+ 1. [Analyzers](https://github.com/antusus/elasticsearch-course/blob/main/notes/03_analyzers.md)

@@ -1,0 +1,113 @@
+# Search for title "Star Trek"
+# Becasue title is an alyzed field response will include Star Trek and Star Wars (because of partial matching)
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "title": "Star Trek"
+    }
+  }
+}
+
+###
+
+# Search for genre "sci"
+# Because genre is also analyzed even if we pass sci it will find movies where genre is Sci-Fi
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_phrase": {
+      "genre": "sci"
+    }
+  }
+}
+
+###
+
+# We are removing whole index and recreate it with more stict mapping of field genre
+DELETE http://localhost:9200/movies
+
+###
+
+# Define moves document
+#We are also defining normalizer to lowercase all genre values as we do not care for case sensivity
+PUT http://localhost:9200/movies
+Content-Type: application/json
+
+{
+  "settings": {
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "title": {
+        "type": "text",
+        "analyzer": "english"
+      },
+      "year": {
+        "type": "date"
+      },
+      "genre": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      }
+    }
+  }
+}
+
+###
+
+# Upload many documents in bulk
+PUT http://localhost:9200/_bulk?pretty
+Content-Type: application/json
+
+< data/movies.json
+
+###
+
+# Search for genre "sci" will return nothing now but when searching for "Sci-Fi" we will have hits
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_phrase": {
+      "genre": "Sci-Fi"
+    }
+  }
+}
+
+###
+
+# Search for genre "sci" will return nothing now but when searching for "Sci-Fi" we will have hits
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_phrase": {
+      "genre": {
+        "query": "sci-fi"
+      }
+    }
+  }
+}
+
+###
