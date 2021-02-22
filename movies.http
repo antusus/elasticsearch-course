@@ -5,11 +5,11 @@ Accept: application/json
 ###
 
 # Delete document
-DELETE http://localhost:9200/movies/_doc/Wcf5yHcBwn-JvDx1IQch
+DELETE http://localhost:9200/movies/_doc/whitehall_s1
 ###
 
 #Parially update a document and add new genre
-POST http://localhost:9200/movies/_update/Wcf5yHcBwn-JvDx1IQch
+POST http://localhost:9200/movies/_update/whitehall_s1
 Content-Type: application/json
 
 {
@@ -26,7 +26,7 @@ Content-Type: application/json
 ###
 
 #Parially update a document and add new genre with script
-POST http://localhost:9200/movies/_update/Wcf5yHcBwn-JvDx1IQch
+POST http://localhost:9200/movies/_update/whitehall_s1
 Content-Type: application/json
 
 {
@@ -41,7 +41,7 @@ Content-Type: application/json
 ###
 
 #Update whole document
-PUT http://localhost:9200/movies/_doc/WMfVyHcBwn-JvDx1FgeA
+PUT http://localhost:9200/movies/_doc/whitehall_s1
 Content-Type: application/json
 
 {
@@ -72,7 +72,7 @@ Accept: application/json
 ###
 
 # Insert new document
-POST http://localhost:9200/movies/_doc
+POST http://localhost:9200/movies/_doc/whitehall_s1
 Content-Type: application/json
 
 {

@@ -1,0 +1,49 @@
+#Parially update a document and add new genre with script
+POST http://localhost:9200/movies/_update/whitehall_s2?retry_on_conflict=5
+Content-Type: application/json
+
+{
+  "script": {
+    "source": "if(!ctx._source.genre.contains(params.genre)) {ctx._source.genre.add(params.genre)}",
+    "params": {
+      "genre": "TV Series"
+    }
+  }
+}
+
+###
+
+#Update whole document - fails if _primary_term and _seq_no does not match
+PUT http://localhost:9200/movies/_doc/whitehall_s2?if_primary_term=2&if_seq_no=35
+Content-Type: application/json
+
+{
+  "title": "Jack Whitehall: Travels with My Father Season 2",
+  "genre": [
+    "Documentary",
+    "Comedy"
+  ],
+  "year": 2018
+}
+
+###
+
+# Get move that we have inserted
+GET http://localhost:9200/movies/_doc/whitehall_s2
+
+###
+
+# Insert new document
+POST http://localhost:9200/movies/_doc/whitehall_s2
+Content-Type: application/json
+
+{
+  "title": "Jack Whitehall: Travels with My Father Season 2",
+  "genre": [
+    "Documentary",
+    "Comedy"
+  ],
+  "year": 2017
+}
+
+###
