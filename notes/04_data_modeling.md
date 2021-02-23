@@ -16,6 +16,11 @@ Dynamic mapping can lead to **Mapping Explosion** which cal lead to poor perform
 Explicit mapping but even then there is nothing stopping you to add too many new fields. There is a way to set **mapping limit settings** to
 limit number of fields that can be created and prevent mapping explosion.
 
+## There is a hard limit of 1000 fields in a document
+
+You can change it with `index.mapping.total_fields.limit` setting, but it may lead to performance 
+degradations and memory issues.
+
 ## Normalizing vs Denormalized data
 
 Storage is cheap. Sometimes for sake of freedom to change data you want to have data normalized. For example let's say we can store movies
@@ -35,14 +40,15 @@ Assume we are storing logs in Elastic Search cluster, and we have host property 
   }
 }
 ```
+
 ```json
 {
-"host": {
-"name": "App-02",
-"ip": "123.43.12.56",
-"os": "linux",
-"arch": "arm"
-}
+  "host": {
+    "name": "App-02",
+    "ip": "123.43.12.56",
+    "os": "linux",
+    "arch": "arm"
+  }
 }
 ```
 
@@ -59,9 +65,10 @@ mapping of `host` field to be **flattened**:
 }
 ```
 
-This will cause ES not to map anny inner fields of host. It reduces size of mapping. However, this means
-that the `host` field will be treated as keyword and will not be analyzed. We can ask for documents with
+This will cause ES not to map anny inner fields of host. It reduces size of mapping. However, this means that the `host` field will be
+treated as keyword and will not be analyzed. We can ask for documents with
 `host.arch = "arm"`:
+
 ```json
 {
   "query": {
@@ -71,15 +78,17 @@ that the `host` field will be treated as keyword and will not be analyzed. We ca
   }
 }
 ```
+
 this will do an exact match on inner parts of field `host`.
 
 Supported queries on `flattened` data type:
- - term, terms and terms_set
- - prefix
- - range (non-numerical range operations)
- - match and multi_match (but we have to provide explicit keywords)
- - query_string and simple_query_string
- - exists
+
+- term, terms and terms_set
+- prefix
+- range (non-numerical range operations)
+- match and multi_match (but we have to provide explicit keywords)
+- query_string and simple_query_string
+- exists
 
 ## Parent / Child Relationships
 
@@ -143,4 +152,47 @@ entry can look like this (some fields are omitted):
 - An element can have multiple children but only one parent.
 - It is possible to add a new relation to an existing join field.
 - It is also possible to add a child to an existing element but only if the element is already a parent.
+
+## Exception mappings
+
+Assume that we have a field that we have mapped as integer:
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "port": {
+        "type": "number"
+      }
+    }
+  }
+}
+```
+
+When inserting new documents port value will be mapped to integer so values 8080 and "9200" are correct. If a value that is not parsable
+occurs, the exception will be thrown. We can ask ES to ignore malformed data but to do that we need to change the index.
+
+```
+PUT /my-index/_settings
+
+{ "index.mapping.ignore_malformed": true }
+```
+
+malformed fields will not be indexed and will be placed in `ignored` section of a document. 
+`ignore_malformed` will not handle malformed JSON values. Those will cause exception to be thrown.
+
+## Closing and opening index
+
+When you need to perform changes on the index you can close it `POST /my-index/_close`. All read/write operations are blocked. This allows
+closed indices not to have maintain internal data structures for indexing and searching documents. This also reduces overhead on the
+cluster.
+
+If you perform any changes to the index upon opening it master will restart index shards to reflect new state of the index. Shards will go
+through recovery process. Data of opened/closed indices are automatically replicated by the cluster.
+
+You can open and close multiple indices at once.
+
+Closed indices consume a significant amount of disk-space. You can disable closing indices.
+
+
 
