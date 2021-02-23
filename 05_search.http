@@ -1,0 +1,172 @@
+# Adding filter to a boolean query. Query looks for films which have word star but does not have trek and we are interested only
+# in documents with year
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "must": {
+        "term": {
+          "title": "star"
+        }
+      },
+      "must_not": {
+        "term": {
+          "title": "trek"
+        }
+      },
+      "filter": {
+        "range": {
+          "year": {
+            "gte": 2010
+          }
+        }
+      }
+    }
+  }
+}
+
+###
+
+# Match phrase with a slop
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_phrase": {
+      "title": {
+        "query": "star awakens",
+        "slop": 5
+      }
+    }
+  }
+}
+
+###
+
+# Using pagination
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "from": 2,
+  "size": 2,
+  "query": {
+    "match": {
+      "genre": "sci-fi"
+    }
+  }
+}
+
+###
+
+############################################
+#########      Using scroll     ############
+############################################
+
+# Create scroll that will live for one minute
+POST http://localhost:9200/movies/_search?scroll=1m
+Content-Type: application/json
+
+{
+  "size": 2,
+  "query": {
+    "match": {
+      "genre": "sci-fi"
+    }
+  }
+}
+
+###
+
+# Get another batch from scroll
+POST http://localhost:9200/_search/scroll
+Content-Type: application/json
+
+{
+  "scroll": "1m",
+  "scroll_id": "FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFkxPRWRjUkZ5U0htTDJHeDNJNnpkLVEAAAAAAAAAexZxQ0VsS295bFItS2dkc3Y5X3pnRHJB"
+}
+
+###
+
+# Delete a scroll
+DELETE http://localhost:9200/_search/scroll
+Content-Type: application/json
+
+{
+  "scroll_id": "FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFkxPRWRjUkZ5U0htTDJHeDNJNnpkLVEAAAAAAAAAfBZxQ0VsS295bFItS2dkc3Y5X3pnRHJB"
+}
+
+###
+
+##################################################
+#########      Using search after     ############
+##################################################
+
+# Create point in time (PIT)
+POST http://localhost:9200/movies/_pit?keep_alive=1m
+
+###
+
+# Search using PIT
+GET http://localhost:9200/_search
+Content-Type: application/json
+
+{
+  "size": 2,
+  "query": {
+    "match": {
+      "genre": "sci-fi"
+    }
+  },
+  "pit": {
+    "id": "t_yxAwEGbW92aWVzFks4c3lqY2ROUlB5SXdUUUMtT2RsMVEAFnFDRWxLb3lsUi1LZ2RzdjlfemdEckEAAAAAAAAAAIIWTE9FZGNSRnlTSG1MMkd4M0k2emQtUQEWSzhzeWpjZE5SUHlJd1RRQy1PZGwxUQAA",
+    "keep_alive": "1m"
+  },
+  "sort": [
+    {
+      "year": "asc"
+    }
+  ]
+}
+
+###
+
+# Search using PIT and get next page
+GET http://localhost:9200/_search
+Content-Type: application/json
+
+{
+  "size": 2,
+  "query": {
+    "match": {
+      "genre": "sci-fi"
+    }
+  },
+  "pit": {
+    "id": "t_yxAwEGbW92aWVzFks4c3lqY2ROUlB5SXdUUUMtT2RsMVEAFnFDRWxLb3lsUi1LZ2RzdjlfemdEckEAAAAAAAAAAIIWTE9FZGNSRnlTSG1MMkd4M0k2emQtUQEWSzhzeWpjZE5SUHlJd1RRQy1PZGwxUQAA",
+    "keep_alive": "1m"
+  },
+  "sort": [
+    {
+      "year": "asc"
+    }
+  ],
+  "search_after": [
+    1388534400000
+  ]
+}
+
+###
+
+DELETE http://localhost:9200/_pit
+Content-Type: application/json
+
+{
+  "id": "t_yxAwEGbW92aWVzFks4c3lqY2ROUlB5SXdUUUMtT2RsMVEAFnFDRWxLb3lsUi1LZ2RzdjlfemdEckEAAAAAAAAAAIIWTE9FZGNSRnlTSG1MMkd4M0k2emQtUQEWSzhzeWpjZE5SUHlJd1RRQy1PZGwxUQAA"
+}
+
+###
