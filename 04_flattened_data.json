@@ -1,0 +1,9 @@
+{"index": {"_index":  "flattened", "_id":  1}}
+{"id": 1, "message": "Service starting", "host": {"ip": "123.44.22.11", "name": "app1"}}
+{"index": {"_index":  "flattened", "_id":  2}}
+{"id": 2, "message": "Service started", "host": {"ip": "123.44.22.11", "name": "app1"}}
+{"index": {"_index":  "flattened", "_id":  3}}
+{"id": 3, "message": "Service starting", "host": {"ip": "123.44.22.11", "name": "", "arch": "arm"}}
+{"index": {"_index":  "flattened", "_id":  4}}
+{"id": 4, "message": "Service failed", "host": {"ip": "123.44.22.11", "name": "", "arch": "arm"}}
+

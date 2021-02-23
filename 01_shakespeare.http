@@ -12,3 +12,8 @@ Content-Type: application/json
 
 ###
 
+GET http://localhost:9200/_cluster/state?pretty=true
+Content-Type: application/json
+
+###
+

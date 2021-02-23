@@ -1,0 +1,42 @@
+# Create index flattened and specify mapping for host as flattened
+PUT http://localhost:9200/flattened
+Content-Type: application/json
+
+{
+  "mappings": {
+    "properties": {
+      "host": {
+        "type": "flattened"
+      }
+    }
+  }
+}
+
+###
+
+# Check if the host is mapped as flattend
+GET http://localhost:9200/flattened/_mapping
+
+###
+
+POST http://localhost:9200/_bulk?pretty=true
+Content-Type: application/json
+
+< 04_flattened_data.json
+
+###
+
+# Search for entries with `host.arch=arm`
+GET http://localhost:9200/flattened/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "host.arch": "arm"
+    }
+  }
+}
+
+###
+
