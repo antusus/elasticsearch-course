@@ -156,8 +156,8 @@ DELETE /_search/scroll
 
 ### Search after
 
-You can use search after to get next page of hits using set of search and sort values from the previous 
-page. **It is recommended way of accessing deep pagination.** If there is a refresh between requests, then order of results might change. You can create a
+You can use search after to get next page of hits using set of search and sort values from the previous page. **It is recommended way of
+accessing deep pagination.** If there is a refresh between requests, then order of results might change. You can create a
 `point in time` to prevent this:
 
 ```
@@ -255,5 +255,31 @@ DELETE http://localhost:9200/_pit
   "id": "some-id-1"
 }
 ```
+
+## Fuzzy search
+
+Allows to search even when someone misspelled a world. Is using `levenshtein edit distance` to account for: substitutions, insertions or
+deletions of character(s). By setting a distance you are telling now many characters can be changed.
+
+Elastic search has `AUTO` setting for fuzzy search that takes into account length of the word and specifies levenshtein edit distance as:
+
+- 0 - for words containing 1-2 characters,
+- 1 - for words containing 3-5 characters,
+- 2 - for anything else.
+
+Example:
+
+```json
+{
+  "query": {
+    "fuzzy": {
+      "title": {
+        "value": "intersteller", "fuzziness": 1
+      }
+    }
+  }
+}
+```
+
 
 

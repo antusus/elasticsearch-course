@@ -1,3 +1,19 @@
+# Fuzzy search
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "fuzzy": {
+      "title": {
+        "value": "intersteller", "fuzziness": "AUTO"
+      }
+    }
+  }
+}
+
+###
+
 # Adding filter to a boolean query. Query looks for films which have word star but does not have trek and we are interested only
 # in documents with year
 GET http://localhost:9200/movies/_search
