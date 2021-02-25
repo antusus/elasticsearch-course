@@ -48,3 +48,4 @@ There is another dataset to try: https://grouplens.org/datasets/movielens/
  1. [Data Modeling](https://github.com/antusus/elasticsearch-course/blob/main/notes/04_data_modeling.md)
  1. [Search](https://github.com/antusus/elasticsearch-course/blob/main/notes/05_search.md)
  1. [Sort](https://github.com/antusus/elasticsearch-course/blob/main/notes/06_sort.md)
+ 1. [Autocomplete](https://github.com/antusus/elasticsearch-course/blob/main/notes/07_autocomplete.md)

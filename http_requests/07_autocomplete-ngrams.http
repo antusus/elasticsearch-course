@@ -1,0 +1,124 @@
+# Remove movies index if exists
+DELETE http://localhost:9200/movies
+
+###
+
+# Map title of the movie to allow autocomplete by prefix on it
+PUT http://localhost:9200/movies
+Content-Type: application/json
+
+{
+  "settings": {
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      },
+      "filter": {
+        "autocomplete_filter": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 20
+        }
+      },
+      "analyzer": {
+        "autocomplete": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "autocomplete_filter"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "title": {
+        "type": "text",
+        "analyzer": "english",
+        "fields": {
+          "raw": {
+            "type": "keyword"
+          },
+          "autocomplete": {
+            "type": "text",
+            "analyzer": "autocomplete"
+          }
+        }
+      },
+      "year": {
+        "type": "date"
+      },
+      "genre": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      }
+    }
+  }
+}
+
+###
+
+# Upload many documents in bulk
+PUT http://localhost:9200/_bulk?pretty
+Content-Type: application/json
+
+< data/movies.json
+
+###
+
+# Test the analyzer
+GET http://localhost:9200/movies/_analyze
+Content-Type: application/json
+
+{
+  "analyzer": "autocomplete",
+  "text": "StA"
+}
+
+###
+
+# We want to search for prefix of sta and we do not want our search term to be splitted to n-grams
+# We need to use title.autocomplete field. Runnig same query just on title will return nothing!
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "title.autocomplete": {
+        "query": "sta",
+        "analyzer": "standard"
+      }
+    }
+  }
+}
+
+###
+
+# Will return "Star Wars" and "Star Trek" since at least one part of our query matches: "sta"
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "title.autocomplete": {
+        "query": "star tr",
+        "analyzer": "standard"
+      }
+    }
+  }
+}
+
+###

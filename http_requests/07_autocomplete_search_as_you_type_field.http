@@ -1,0 +1,97 @@
+# Remove movies index if exists
+DELETE http://localhost:9200/movies
+
+###
+
+# Map title of the movie to allow autocomplete by prefix on it
+PUT http://localhost:9200/movies
+Content-Type: application/json
+
+{
+  "settings": {
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "title": {
+        "type": "search_as_you_type",
+        "analyzer": "english"
+      },
+      "year": {
+        "type": "date"
+      },
+      "genre": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      }
+    }
+  }
+}
+
+###
+
+# Upload many documents in bulk
+PUT http://localhost:9200/_bulk?pretty
+Content-Type: application/json
+
+< data/movies.json
+
+###
+
+# We want to search for prefix of sta and we do not want our search term to be splitted to n-grams
+# We need to use title.autocomplete field. Runnig same query just on title will return nothing!
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "size": 5,
+  "query": {
+    "multi_match": {
+      "query": "Sta",
+      "analyzer": "standard",
+      "type": "bool_prefix",
+      "fields": [
+        "title",
+        "title._2gram",
+        "title._3gram"
+      ]
+    }
+  }
+}
+
+###
+
+# Will return "Star Wars" and "Star Trek" since at least one part of our query matches: "sta"
+GET http://localhost:9200/movies/_search
+Content-Type: application/json
+
+{
+  "size": 5,
+  "query": {
+    "multi_match": {
+      "query": "Sta",
+      "analyzer": "standard",
+      "type": "bool_prefix",
+      "fields": [
+        "title",
+        "title._2gram",
+        "title._3gram"
+      ]
+    }
+  }
+}
+
+###
