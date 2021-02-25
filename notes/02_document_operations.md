@@ -29,17 +29,6 @@ Analyzers can:
 - tokenize values on white spaces, strings or non letters
 - filter tokens, apply lowercase, stemming, synonyms apply stopwords and more
 
-# Updating document
-
-In ES documents are immutable. They have _version field. To update document you need to upload it with never version. An old document is
-marked for deletion and will later be removed.
-
-You can upload partial of a document to update only some fields (using POST REST API), or you can update whole docment (using PUT REST API).
-
-# Deleting document
-
-Use DELETE REST API call and document will be marked for deletion.
-
 # Concurrency
 
 Elastic Search is distributed. Operations that are changing documents must replicate new document  
@@ -88,3 +77,40 @@ POST movies/_update/1567?retry_on_conflict=5
 ```
 Will retry up to 5 times if conflict occurs. We are interested only to add this genre
 to a document.
+
+# Updating document
+
+In ES documents are immutable. They have _version field. To update document you need to 
+upload it with never version. An old document is marked for deletion and will later 
+be removed.
+
+You can upload partial of a document to update only some fields (using POST REST API), 
+or you can update whole document (using PUT REST API).
+
+You can update only one document or use query and update many of them. When updating one 
+document you can apply optimistic concurrency mechanism with `if_primary_term`
+and `if_seq_no` parameters.
+
+When updating a document you can specify a query and all documents matching query will 
+be updated, or you can update all documents.
+
+Update is done in batches. First search return batch of documents to change and next
+batch update is done by ES until there are no more documents matching query. 
+
+You can specify how many shards must accept copy before proceeding with the request, 
+you can set this up with `wait_for_active_shards` control.
+
+# Deleting document
+
+Use DELETE REST API call and document will be marked for deletion.
+
+```
+DELETE /movies/_doc/1224
+```
+
+Delete operation can have optimistic concurrency control enabled with `if_primary_term`
+and `if_seq_no` parameters passed in delete request.
+
+You can specify a version of document to delete. After removal version is still available
+for short period of time to allow for concurrent operations. You can specify amount
+of time by `index.gc_deletes` setting (defaults to 60s).
